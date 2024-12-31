@@ -3,4 +3,4 @@ Makeing possibile communication between Message Bus (MQ) to/from HTTP REST API I
 
 ## Supported MQ Implementations
 
-- RabbitMQ
+- [RabbitMQ](https://www.rabbitmq.com/)
