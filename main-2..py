@@ -43,6 +43,7 @@ class Config:
     def all(self):
         return self._config_data
 
+
 class APIMQTTBridge:
     def __init__(self, config_file="config.yaml"):
         self.config = Config(config_file)
@@ -104,13 +105,14 @@ class APIMQTTBridge:
             mqtt_topic = api_config.get("topic")
             headers = api_config.get("headers", {})
             payload = api_config.get("payload")
-            polling_interval = api_config.get("polling_interval", 60) # Default to 60 seconds
+            polling_interval = api_config.get("polling_interval", 60)  # Default to 60 seconds
 
             if not api_url or not mqtt_topic:
                 print(f"Warning: Missing URL or MQTT topic in API mapping: {api_config}")
                 continue
 
-            print(f"Fetching data from: {api_url} (Method: {http_method}), Publishing to: {mqtt_topic} every {polling_interval} seconds.")
+            print(f"Fetching data from: {api_url} (Method: {http_method}), "
+                  "Publishing to: {mqtt_topic} every {polling_interval} seconds.")
 
             def fetch_and_publish_loop(url, method, topic, headers, payload, interval, client):
                 while True:
@@ -149,11 +151,14 @@ class APIMQTTBridge:
                     time.sleep(interval)
 
             import threading
-            thread = threading.Thread(target=fetch_and_publish_loop, args=(api_url, http_method, mqtt_topic, headers, payload, polling_interval, self.mqtt_client), daemon=True)
+            thread = threading.Thread(target=fetch_and_publish_loop,
+                                      args=(api_url, http_method, mqtt_topic, headers, payload,
+                                            polling_interval, self.mqtt_client), daemon=True)
             thread.start()
 
         while True:
             time.sleep(1) # Keep the main thread alive for the background threads
+
 
 if __name__ == "__main__":
     # Create a sample config.yaml file in the same directory:

@@ -104,6 +104,7 @@ class Config:
         """
         return self._config_data
 
+
 # Example Usage:
 
 # 1. Create a YAML configuration file (e.g., config.yaml) in the same directory:
