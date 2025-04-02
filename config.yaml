@@ -1,11 +1,23 @@
-http:
-  base_url: "YOUR_HTTP_API_BASE_URL"  # Replace with your API base URL
-  endpoint: "/your/api/endpoint"  # Replace with the specific endpoint
-  headersS: {"Content-Type": "application/json"}  # Example headers
-mqtt:
-  broker_address: "YOUR_MQTT_BROKER_ADDRESS"  # Replace with your broker address
-  broker_port: 1883  # Default MQTT port
-  username: "YOUR_MQTT_USERNAME"  # Optional
-  password: "YOUR_MQTT_PASSWORD"  # Optional
-  topic_publish: "your/publish/topic"  # Replace with your publish topic
-  topic_subscribe: "your/subscribe/topic"  # Replace with your subscribe topic
+mq:
+  broker_address: YOUR_MQ_BROKER_ADDRESS
+  port: 1883
+  username: YOUR_MQ_USERNAME
+  password: YOUR_MQ_PASSWORD
+rest:
+  base_url: YOUR_REST_API_BASE_URL
+binding:
+- rest_endpoint: users
+  rest_method: GET
+  mq_topic: users
+  polling_interval: 10
+  headers:
+    Content-Type: "application/json"
+- rest_endpoint: post
+  rest_method: "POST"
+  mq_topic: data
+  polling_interval: 20
+  headers:
+    Content-Type: "application/json"
+  payload:
+    message: "Hello from Python"
+    timestamp: "{{timestamp}}" # Example of a placeholder
