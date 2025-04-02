@@ -122,3 +122,170 @@ class Bridge:
             thread.start()
         while True:
             time.sleep(1)  # Keep the main thread alive for the background threads
+
+
+import json
+import threading
+import time
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import parse_qs, urlparse
+
+import pika  # For RabbitMQ (you might need other libraries for different MQs)
+import requests
+
+# --- Configuration ---
+MQ_HOST = 'localhost'  # Replace with your MQ host
+MQ_QUEUE = 'mq_to_http'  # Queue to subscribe to for HTTP calls
+HTTP_API_URL_MAPPING = {
+    'user.created': 'https://api.example.com/users',
+    'order.placed': 'https://api.example.com/orders'
+    # Add more mappings based on routing key or message content
+}
+HTTP_REQUEST_METHOD_MAPPING = {
+    'user.created': 'POST',
+    'order.placed': 'POST'
+    # Define HTTP methods per message type/routing key
+}
+HTTP_AUTH_TOKEN = 'your_api_token'  # Optional: API authentication token
+
+BRIDGE_HTTP_HOST = 'localhost'
+BRIDGE_HTTP_PORT = 8080
+HTTP_TO_MQ_EXCHANGE = 'http_to_mq'  # Exchange to publish messages from HTTP
+HTTP_TO_MQ_ROUTING_KEY = 'incoming.http' # Default routing key for HTTP messages
+
+# --- MQ to HTTP Bridge ---
+def process_mq_message(ch, method, properties, body):
+    try:
+        message = json.loads(body.decode())
+        routing_key = method.routing_key  # Or determine target API based on message content
+
+        if routing_key in HTTP_API_URL_MAPPING:
+            api_url = HTTP_API_URL_MAPPING[routing_key]
+            http_method = HTTP_REQUEST_METHOD_MAPPING.get(routing_key, 'POST')  # Default to POST
+
+            headers = {'Content-Type': 'application/json'}
+            if HTTP_AUTH_TOKEN:
+                headers['Authorization'] = f'Bearer {HTTP_AUTH_TOKEN}'
+
+            print(f"Received MQ message (routing key: {routing_key}): {message}")
+            print(f"Sending HTTP {http_method} request to: {api_url}")
+
+            try:
+                if http_method == 'POST':
+                    response = requests.post(api_url, headers=headers, json=message)
+                elif http_method == 'GET':
+                    response = requests.get(api_url, headers=headers, params=message) # Assuming message can be query params
+                elif http_method == 'PUT':
+                    response = requests.put(api_url, headers=headers, json=message)
+                elif http_method == 'DELETE':
+                    response = requests.delete(api_url, headers=headers, json=message)
+                else:
+                    print(f"Unsupported HTTP method: {http_method}")
+                    ch.basic_ack(delivery_tag=method.delivery_tag)
+                    return
+
+                response.raise_for_status()  # Raise an exception for bad status codes
+                print(f"HTTP Request successful. Status: {response.status_code}, Response: {response.text}")
+                # Optionally process the API response and potentially send a message back to MQ
+            except requests.exceptions.RequestException as e:
+                print(f"Error during HTTP request: {e}")
+            except requests.exceptions.HTTPError as e:
+                print(f"HTTP Error: {e.response.status_code} - {e.response.text}")
+
+        else:
+            print(f"No HTTP API URL mapping found for routing key: {routing_key}")
+
+    except json.JSONDecodeError:
+        print(f"Error decoding JSON from MQ message: {body.decode()}")
+    except Exception as e:
+        print(f"Error processing MQ message: {e}")
+
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+def consume_mq():
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters(MQ_HOST))
+        channel = connection.channel()
+
+        channel.exchange_declare(exchange='amq.direct', exchange_type='direct') # Assuming direct exchange
+        channel.queue_declare(queue=MQ_QUEUE, durable=True)
+        channel.queue_bind(exchange='amq.direct', queue=MQ_QUEUE, routing_key=MQ_QUEUE) # Bind with queue name
+
+        # You might want to bind to different routing keys based on your needs
+        # channel.queue_bind(exchange='amq.direct', queue=MQ_QUEUE, routing_key='user.created')
+        # channel.queue_bind(exchange='amq.direct', queue=MQ_QUEUE, routing_key='order.*')
+
+        channel.basic_qos(prefetch_count=1)  # Process one message at a time
+        channel.basic_consume(queue=MQ_QUEUE, on_message_callback=process_mq_message)
+
+        print(f" [*] Waiting for messages on queue '{MQ_QUEUE}'. To exit press CTRL+C")
+        channel.start_consuming()
+
+    except pika.exceptions.AMQPConnectionError as e:
+        print(f"Error connecting to MQ: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred in the MQ consumer: {e}")
+
+# --- HTTP to MQ Bridge ---
+class HTTPToMQHandler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        parsed_path = urlparse(self.path)
+        query_params = parse_qs(parsed_path.query)
+
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+
+        try:
+            message = json.loads(post_data.decode())
+            routing_key = query_params.get('routing_key', [HTTP_TO_MQ_ROUTING_KEY])[0] # Get routing key from query or default
+
+            connection = pika.BlockingConnection(pika.ConnectionParameters(MQ_HOST))
+            channel = connection.channel()
+            channel.exchange_declare(exchange=HTTP_TO_MQ_EXCHANGE, exchange_type='topic', durable=True) # Using topic exchange
+
+            channel.basic_publish(exchange=HTTP_TO_MQ_EXCHANGE,
+                                  routing_key=routing_key,
+                                  properties=pika.BasicProperties(delivery_mode=2), # Make message persistent
+                                  body=json.dumps(message).encode())
+            print(f" [x] Sent message to MQ (exchange: {HTTP_TO_MQ_EXCHANGE}, routing_key: {routing_key}): {message}")
+            connection.close()
+
+            self.send_response(202)  # Accepted
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response_data = {'status': 'success', 'message_sent': True}
+            self.wfile.write(json.dumps(response_data).encode())
+
+        except json.JSONDecodeError:
+            self.send_response(400)  # Bad Request
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response_data = {'status': 'error', 'message': 'Invalid JSON payload'}
+            self.wfile.write(json.dumps(response_data).encode())
+        except pika.exceptions.AMQPConnectionError as e:
+            self.send_response(503)  # Service Unavailable
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response_data = {'status': 'error', 'message': f'Error connecting to MQ: {e}'}
+            self.wfile.write(json.dumps(response_data).encode())
+        except Exception as e:
+            self.send_response(500)  # Internal Server Error
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            response_data = {'status': 'error', 'message': f'Internal server error: {e}'}
+            self.wfile.write(json.dumps(response_data).encode())
+
+def run_http_server():
+    server_address = (BRIDGE_HTTP_HOST, BRIDGE_HTTP_PORT)
+    httpd = HTTPServer(server_address, HTTPToMQHandler)
+    print(f" [*] HTTP to MQ bridge listening on http://{BRIDGE_HTTP_HOST}:{BRIDGE_HTTP_PORT}")
+    httpd.serve_forever()
+
+if __name__ == "__main__":
+    # Start the MQ consumer in a separate thread
+    mq_thread = threading.Thread(target=consume_mq)
+    mq_thread.daemon = True
+    mq_thread.start()
+
+    # Start the HTTP server in the main thread (or another thread if needed)
+    run_http_server()
