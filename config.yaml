@@ -28,7 +28,7 @@ subscribe:
   headers:
     Content-Type: "application/json"
 - rest_endpoint: post
-  rest_method: "POST"
+  rest_method: POST
   mqtt_topic: data
   headers:
     Content-Type: "application/json"
