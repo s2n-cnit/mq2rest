@@ -1,23 +1,34 @@
-mq:
-  broker_address: YOUR_MQ_BROKER_ADDRESS
+mqtt:
+  broker_address: YOUR_MQTT_BROKER_ADDRESS
   port: 1883
-  username: YOUR_MQ_USERNAME
-  password: YOUR_MQ_PASSWORD
+  username: YOUR_MQTT_USERNAME
+  password: YOUR_MQTT_PASSWORD
 rest:
   base_url: YOUR_REST_API_BASE_URL
-binding:
+publish:
 - rest_endpoint: users
   rest_method: GET
-  mq_topic: users
+  mqtt_topic: users
   polling_interval: 10
   headers:
     Content-Type: "application/json"
 - rest_endpoint: post
   rest_method: "POST"
-  mq_topic: data
+  mqtt_topic: data
   polling_interval: 20
   headers:
     Content-Type: "application/json"
   payload:
     message: "Hello from Python"
     timestamp: "{{timestamp}}" # Example of a placeholder
+subscribe:
+- rest_endpoint: users
+  rest_method: POST
+  mqtt_topic: users
+  headers:
+    Content-Type: "application/json"
+- rest_endpoint: post
+  rest_method: "POST"
+  mqtt_topic: data
+  headers:
+    Content-Type: "application/json"
