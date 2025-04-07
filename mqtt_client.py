@@ -6,10 +6,10 @@ from log import logger
 
 
 class MQTTClient:
-    def __init__(self: Self, config: Config):
-        self.config = config.get_section("mqtt", error_msg=True)
+    def __init__(self: Self, config: Config) -> None:
+        self.config = config.get("mqtt", error_msg=True)
 
-        broker_address = self.config.get("broker_address", error_msg=True)
+        host = self.config.get("host", error_msg=True)
         port = self.config.get("port", 1883)
         username = self.config.get("username")
         password = self.config.get("password")
@@ -20,11 +20,14 @@ class MQTTClient:
 
         self.handler.on_connect = self._on_connect
         self.handler.on_disconnect = self._on_disconnect
+        self.subscribe = self.handler.subscribe
+        self.publish = self.handler.publish
+        self.loop_forever = self.handler.loop_forever
 
         try:
-            self.handler.connect(broker_address, port, 60)
+            self.handler.connect(host, port, 60)
             self.handler.loop_start()
-            logger.success(f"Connected to MQTT at {broker_address}:{port}")
+            logger.success(f"Connected to MQTT at {host}:{port}")
         except Exception as e:
             logger.error(f"Connecting to MQTT {e}")
 

@@ -8,9 +8,9 @@ from log import logger
 
 class RESTHTTPClient:
     def __init__(self: Self, config: Config) -> None:
-        self.config = config.get_section("rest")
+        self.config = config.get("rest")
 
-    def run(self: Self, url: str, method: str, headers: str, data: any, callback: callable) -> None:
+    def run(self: Self, endpoint: str, method: str, headers: str, data: any, callback: callable) -> None:
         try:
             match method.upper():
                 case "GET": r = requests.get
@@ -20,6 +20,7 @@ class RESTHTTPClient:
                 case _:
                     logger.error(f"Unsupported REST HTTP method '{method}' for URL: {url}")
                     return
+            url = self.config.get("base_url") + "/" + endpoint
             resp = r(url, headers=headers, data=data)
             resp.raise_for_status()  # Raise an exception for bad status codes
             callback(data=resp.json())

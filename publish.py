@@ -11,16 +11,15 @@ from rest_http_client import RESTHTTPClient
 
 
 class Publish:
-    def __init__(self: Self) -> None:
-        def __init__(self: Self, config: Config, mqtt_client: MQTTClient, rest_http_client: RESTHTTPClient) -> None:
-            self.config = config.get("publish", error_msg=True)
-            self.mqtt_client = mqtt_client
-            self.mqtt_client.set_publish_event(self._on_event)
-            self.rest_http_client = rest_http_client
+    def __init__(self: Self, config: Config, mqtt_client: MQTTClient, rest_http_client: RESTHTTPClient) -> None:
+        self.config = config.get("publish", error_msg=True)
+        self.mqtt_client = mqtt_client
+        self.mqtt_client.set_publish_event(self._on_event)
+        self.rest_http_client = rest_http_client
 
     def run(self: Self) -> None:
         for record in self.config:
-            rest_endpoint = record.get("rest_endpoint", error_msg=True)
+            rest_endpoint = record.get("rest_endpoint")
             rest_method = record.get("rest_method", "GET").upper()
             mqtt_topic = record.get("mqtt_topic")
             headers = record.get("headers", {})
@@ -30,7 +29,7 @@ class Publish:
             logger.info(f"Fetching data from: {rest_endpoint} (Rest_method: {rest_method}), "
                         "Publishing to: {mqtt_topic} every {polling_interval} seconds.")
 
-            def publish_loop(url, rest_method, mqtt_topic, headers, payload, interval, client):
+            def publish_loop(endpoint, rest_method, mqtt_topic, headers, payload, interval, client):
                 while True:
                     def _callback(data: dict) -> None:
                         payload_str = json.dumps(data)
@@ -39,13 +38,12 @@ class Publish:
                             logger.info(f"Published to '{mqtt_topic}': {payload_str[:50]}...")
                         else:
                             logger.error(f"Publishing to '{mqtt_topic}': {result}")
-                    self.rest_http_client.run(url=url, method=rest_method, headers=headers, data=payload,
+                    self.rest_http_client.run(endpoint=endpoint, method=rest_method, headers=headers, data=payload,
                                               callback=_callback)
                     time.sleep(interval)
 
-            url = self.config_http.base_url + "/" + rest_endpoint
             thread = Thread(target=publish_loop,
-                            args=(url, rest_method, mqtt_topic, headers, payload,
+                            args=(rest_endpoint, rest_method, mqtt_topic, headers, payload,
                                   polling_interval, self.mqtt_client), daemon=True)
             thread.start()
         while True:
