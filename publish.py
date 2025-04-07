@@ -5,11 +5,11 @@ from typing import Self
 
 import paho.mqtt.client as mqtt
 from config import Config
-from jinja2 import Template
 from log import logger
 from mqtt_client import MQTTClient
 from parse import parse
 from rest_http_client import RESTHTTPClient
+from template import Template
 
 
 class Publish:
@@ -36,7 +36,7 @@ class Publish:
                     def _callback(data: dict) -> None:
                         in_data = json.dumps(data)
                         r = parse(body.get("in"), in_data)
-                        out_data = Template(body.out).render(dict(**r))
+                        out_data = Template(body.out).render(r.named)
                         result = client.publish(mqtt_topic, out_data)
                         if result[0] == mqtt.MQTT_ERR_SUCCESS:
                             logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
