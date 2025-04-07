@@ -5,8 +5,10 @@ from typing import Self
 
 import paho.mqtt.client as mqtt
 from config import Config
+from jinja2 import Template
 from log import logger
 from mqtt_client import MQTTClient
+from parse import parse
 from rest_http_client import RESTHTTPClient
 
 
@@ -23,27 +25,29 @@ class Publish:
             rest_method = record.get("rest_method", "GET").upper()
             mqtt_topic = record.get("mqtt_topic")
             headers = record.get("headers", {})
-            payload = record.get("payload")
             polling_interval = record.get("polling_interval", 60)  # Default to 60 seconds
+            body = record.get("body")
 
             logger.info(f"Fetching data from: {rest_endpoint} (Rest_method: {rest_method}), "
                         "Publishing to: {mqtt_topic} every {polling_interval} seconds.")
 
-            def publish_loop(endpoint, rest_method, mqtt_topic, headers, payload, interval, client):
+            def publish_loop(endpoint, rest_method, mqtt_topic, headers, body, interval, client):
                 while True:
                     def _callback(data: dict) -> None:
-                        payload_str = json.dumps(data)
-                        result = client.publish(mqtt_topic, payload_str)
+                        in_data = json.dumps(data)
+                        r = parse(body.get("in"), in_data)
+                        out_data = Template(body.out).render(dict(**r))
+                        result = client.publish(mqtt_topic, out_data)
                         if result[0] == mqtt.MQTT_ERR_SUCCESS:
-                            logger.info(f"Published to '{mqtt_topic}': {payload_str[:50]}...")
+                            logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
                         else:
                             logger.error(f"Publishing to '{mqtt_topic}': {result}")
-                    self.rest_http_client.run(endpoint=endpoint, method=rest_method, headers=headers, data=payload,
+                    self.rest_http_client.run(endpoint=endpoint, method=rest_method, headers=headers,
                                               callback=_callback)
                     time.sleep(interval)
 
             thread = Thread(target=publish_loop,
-                            args=(rest_endpoint, rest_method, mqtt_topic, headers, payload,
+                            args=(rest_endpoint, rest_method, mqtt_topic, headers, body,
                                   polling_interval, self.mqtt_client), daemon=True)
             thread.start()
         while True:

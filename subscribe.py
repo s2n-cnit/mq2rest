@@ -2,8 +2,10 @@ from threading import Thread
 from typing import Self
 
 from config import Config
+from jinja2 import Template
 from log import logger
 from mqtt_client import MQTTClient
+from parse import parse
 from rest_http_client import RESTHTTPClient
 
 
@@ -34,9 +36,13 @@ class Subscribe:
         rest_endpoint = record.get("rest_endpoint")
         rest_method = record.get("rest_method", "GET").upper()
         headers = record.get("headers", {})
+        body = record.get("body")
 
         def _callback(data: dict) -> None:
             logger.info(f"Response from {rest_endpoint} {rest_method}: {data}")
 
+        r = parse(body.get("in"), msg.payload)
+        out_data = Template(body.out).render(dict(**r))
+
         self.rest_http_client.run(endpoint=rest_endpoint, method=rest_method, headers=headers,
-                                  data=msg.payload, callback=_callback)
+                                  data=out_data, callback=_callback)

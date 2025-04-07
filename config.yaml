@@ -11,6 +11,11 @@ publish:
   polling_interval: 10
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      hello {{ user }}
+    out: |
+      my name is {{ user }}
 # Gain
 - rest_endpoint: /1/33320/1/1
   rest_method: GET
