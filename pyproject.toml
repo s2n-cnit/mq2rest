@@ -1,0 +1,23 @@
+[project]
+name = "mq2rest"
+version = "0.1.0"
+description = "Makeing possibile communication between Message Bus (MQ) to/from HTTP REST API Interfaces."
+authors = [
+    {name = "Alex Carrega",email = "alessandro.carrega@unige.it"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "fastapi (>=0.115.12,<0.116.0)",
+    "requests (>=2.32.3,<3.0.0)",
+    "pyyaml (>=6.0.2,<7.0.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "paho-mqtt (>=2.1.0,<3.0.0)",
+    "uvicorn (>=0.34.0,<0.35.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

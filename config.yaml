@@ -2,17 +2,58 @@ mqtt:
   host: localhost
   port: 1883
 rest:
-  base_url: http://127.0.0.1:8000
+  base_url: http://127.0.0.1:9999
 publish:
-- rest_endpoint: books/
+# Depth
+- rest_endpoint: /1/3319/1/1
   rest_method: GET
-  mqtt_topic: books
+  mqtt_topic: 1
+  polling_interval: 10
+  headers:
+    Content-Type: "application/json"
+# Gain
+- rest_endpoint: /1/33320/1/1
+  rest_method: GET
+  mqtt_topic: 1
+  polling_interval: 10
+  headers:
+    Content-Type: "application/json"
+# Width
+- rest_endpoint: /1/33321/1/1
+  rest_method: GET
+  mqtt_topic: 1
+  polling_interval: 10
+  headers:
+    Content-Type: "application/json"
+# Scan correlation
+- rest_endpoint: /1/33322/1/1
+  rest_method: GET
+  mqtt_topic: 1
   polling_interval: 10
   headers:
     Content-Type: "application/json"
 subscribe:
-- mqtt_topic: books
-  rest_endpoint: books/
-  rest_method: POST
+# Depth
+- mqtt_topic: 1
+  rest_endpoint: /1/3319/1/1
+  rest_method: PUT
+  headers:
+    Content-Type: "application/json"
+# Gain
+- mqtt_topic: 1
+  rest_endpoint: /1/33320/1/1
+  rest_method: PUT\
+  headers:
+    Content-Type: "application/json"
+# Width
+- mqtt_topic: 1
+  rest_endpoint: /1/33321/1/1
+  rest_method: PUT
+  headers:
+    Content-Type: "application/json"
+# Scan correlation
+- mqtt_topic: 1
+  rest_endpoint: /1/33322/1/1
+  rest_method: PUT
   headers:
     Content-Type: "application/json"
