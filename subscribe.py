@@ -2,11 +2,10 @@ from threading import Thread
 from typing import Self
 
 from config import Config
+from data_translator import translate
 from log import logger
 from mqtt_client import MQTTClient
-from parse import parse
 from rest_http_client import RESTHTTPClient
-from template import Template
 
 
 class Subscribe:
@@ -41,8 +40,7 @@ class Subscribe:
         def _callback(data: dict) -> None:
             logger.info(f"Response from {rest_endpoint} {rest_method}: {data}")
 
-        r = parse(body.get("in"), msg.payload)
-        out_data = Template(body.out).render(r.named)
+        out_data = translate(data=msg.payload, template_in=body.get("in"), template_out=body.get("out"))
 
         self.rest_http_client.run(endpoint=rest_endpoint, method=rest_method, headers=headers,
                                   data=out_data, callback=_callback)

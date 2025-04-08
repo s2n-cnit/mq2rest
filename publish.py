@@ -5,11 +5,10 @@ from typing import Self
 
 import paho.mqtt.client as mqtt
 from config import Config
+from data_translator import translate
 from log import logger
 from mqtt_client import MQTTClient
-from parse import parse
 from rest_http_client import RESTHTTPClient
-from template import Template
 
 
 class Publish:
@@ -32,16 +31,15 @@ class Publish:
                         "Publishing to: {mqtt_topic} every {polling_interval} seconds.")
 
             def publish_loop(endpoint, rest_method, mqtt_topic, headers, body, interval, client):
+                def _callback(data: dict) -> None:
+                    out_data = translate(data=data, template_in=body.get("in"), template_out=body.get("out"))
+                    result = client.publish(mqtt_topic, out_data)
+                    if result[0] == mqtt.MQTT_ERR_SUCCESS:
+                        logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
+                    else:
+                        logger.error(f"Publishing to '{mqtt_topic}': {result}")
+
                 while True:
-                    def _callback(data: dict) -> None:
-                        in_data = json.dumps(data)
-                        r = parse(body.get("in"), in_data)
-                        out_data = Template(body.out).render(r.named)
-                        result = client.publish(mqtt_topic, out_data)
-                        if result[0] == mqtt.MQTT_ERR_SUCCESS:
-                            logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
-                        else:
-                            logger.error(f"Publishing to '{mqtt_topic}': {result}")
                     self.rest_http_client.run(endpoint=endpoint, method=rest_method, headers=headers,
                                               callback=_callback)
                     time.sleep(interval)
