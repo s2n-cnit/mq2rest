@@ -34,7 +34,7 @@ publish:
 # Scan correlation
 - rest_endpoint: /1/33322/1/1?getRealtime=true
   rest_method: GET
-  mqtt_topic: tele22001/3322/0
+  mqtt_topic: tele/D001/3322/0
   polling_interval: 10
   body:
       tmstp: ""
