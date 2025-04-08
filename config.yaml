@@ -2,7 +2,7 @@ mqtt:
   host: localhost
   port: 1883
 rest:
-  base_url: http://127.0.0.1:9999
+  base_url: http://127.0.0.1:5555
 publish:
 # Depth
 - rest_endpoint: /1/3319/1/1?getRealtime=true
@@ -10,90 +10,63 @@ publish:
   mqtt_topic: tele/D001/3319/0
   polling_interval: 10
   body:
-    in:
-      hello: {value}
-    out:
-      tmstp: ""
-      e:
-        - v: {value}
+    tmstp: ""
+    e:
+      - v: $value
 # Gain
 - rest_endpoint: /1/33320/1/1?getRealtime=true
   rest_method: GET
   mqtt_topic: tele/D001/3320/0
   polling_interval: 10
   body:
-    in:
-      hello: {value}
-    out:
-      tmstp: ""
-      e:
-        - v: {value}
+    tmstp: ""
+    e:
+      - v: $value
 # Width
 - rest_endpoint: /1/33321/1/1?getRealtime=true
   rest_method: GET
   mqtt_topic: tele/D001/3321/0
   polling_interval: 10
   body:
-    in:
-      hello: {value}
-    out:
-      tmstp: ""
-      e:
-        - v: {value}
+    tmstp: ""
+    e:
+      - v: $value
 # Scan correlation
 - rest_endpoint: /1/33322/1/1?getRealtime=true
   rest_method: GET
   mqtt_topic: tele22001/3322/0
   polling_interval: 10
   body:
-    in:
-      hello: {value}
-    out:
       tmstp: ""
       e:
-        - v: {value}
+        - v: $value
 subscribe:
 # Depth
 - mqtt_topic: tele/D001/3319/0
   rest_endpoint: /1/3319/1/1
   rest_method: PUT
   body:
-    in:
-      tmstp: ""
-      e:
-        - v: {value}
-    out:
-      hello: {value}
+    id: "1"
+    value: $value
 # Gain
 - mqtt_topic: tele/D001/3320/0
   rest_endpoint: /1/33320/1/1
   rest_method: PUT\
   body:
-    in:
-      tmstp: ""
-      e:
-        - v: {value}
-    out:
-      hello: {value}
+    id: "1"
+    value: $value
 # Width
 - mqtt_topic: tele/D001/3321/0
   rest_endpoint: /1/33321/1/1
   rest_method: PUT
   body:
-    in:
-      tmstp: ""
-      e:
-        - v: {value}
-    out:
-      hello: {value}
+    id: "1"
+    value: $value
 # Scan correlation
 - mqtt_topic: tele/D001/3322/0
   rest_endpoint: /1/33322/1/1
   rest_method: PUT
   body:
-    in:
-      tmstp: ""
-      e:
-        - v: {value}
-    out:
-      hello: {value}
+    id: "1"
+    value: $value
+

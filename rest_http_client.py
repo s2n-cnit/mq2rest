@@ -5,12 +5,16 @@ import requests
 from config import Config
 from log import logger
 
+headers = {
+    "Content-Type": "application/json'"
+}
+
 
 class RESTHTTPClient:
     def __init__(self: Self, config: Config) -> None:
         self.config = config.get("rest")
 
-    def run(self: Self, endpoint: str, method: str, headers: str, data: any, callback: callable) -> None:
+    def run(self: Self, endpoint: str, method: str, data: any, callback: callable) -> None:
         try:
             match method.upper():
                 case "GET": r = requests.get
@@ -18,10 +22,10 @@ class RESTHTTPClient:
                 case "PUT": r = requests.put
                 case "DELETE": r = requests.delete
                 case _:
-                    logger.error(f"Unsupported REST HTTP method '{method}' for URL: {url}")
+                    logger.error(f"Unsupported REST HTTP method '{method}' for URL: {endpoint}")
                     return
             url = self.config.get("base_url") + "/" + endpoint
-            resp = r(url, headers=headers, data=data)
+            resp = r(url, json=data)
             resp.raise_for_status()  # Raise an exception for bad status codes
             callback(data=resp.json())
         except requests.exceptions.RequestException as e:

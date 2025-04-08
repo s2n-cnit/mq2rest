@@ -34,13 +34,11 @@ class Subscribe:
 
         rest_endpoint = record.get("rest_endpoint")
         rest_method = record.get("rest_method", "GET").upper()
-        headers = record.get("headers", {})
         body = record.get("body")
 
         def _callback(data: dict) -> None:
             logger.info(f"Response from {rest_endpoint} {rest_method}: {data}")
 
-        out_data = translate(data=msg.payload, template_in=body.get("in"), template_out=body.get("out"))
+        out_data = translate(data=msg.payload, template=body)
 
-        self.rest_http_client.run(endpoint=rest_endpoint, method=rest_method, headers=headers,
-                                  data=out_data, callback=_callback)
+        self.rest_http_client.run(endpoint=rest_endpoint, method=rest_method, data=out_data, callback=_callback)
