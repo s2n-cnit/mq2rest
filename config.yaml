@@ -107,7 +107,7 @@ subscribe:
       hello: {value}
 # Width
 - mqtt_topic: tele/D001/3321/0
-  rest_endpoint: /1/33321/1/1
+  rest_endpoint: /1/33321/1/1?getRealtime=true
   rest_method: PUT
   headers:
     Content-Type: "application/json"
@@ -123,7 +123,7 @@ subscribe:
       hello: {value}
 # Scan correlation
 - mqtt_topic: tele/D001/3322/0
-  rest_endpoint: /1/33322/1/1
+  rest_endpoint: /1/33322/1/1?getRealtime=true
   rest_method: PUT
   headers:
     Content-Type: "application/json"
