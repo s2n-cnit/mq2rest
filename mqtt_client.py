@@ -1,3 +1,5 @@
+from enum import Enum
+from threading import Thread
 from typing import Self
 
 import paho.mqtt.client as mqtt
@@ -5,43 +7,50 @@ from config import Config
 from log import logger
 
 
-class MQTTClient:
-    def __init__(self: Self, config: Config) -> None:
-        self.config = config.get("mqtt", error_msg=True)
+class MQTTType(Enum):
+    Publish = 1
+    Subscribe = 2
 
-        host = self.config.get("host", error_msg=True)
-        port = self.config.get("port", 1883)
-        username = self.config.get("username")
-        password = self.config.get("password")
+
+class MQTTClient:
+    def __init__(self: Self, config: Config, type: MQTTType, on_connect: callable, on_event: callable) -> None:
+        self.config = config.get("mqtt", error_msg=True)
+        self.type = type
+
+        self.host = self.config.get("host", error_msg=True)
+        self.port = self.config.get("port", 1883)
+        self.username = self.config.get("username")
+        self.password = self.config.get("password")
 
         self.handler = mqtt.Client()
-        if username and password:
-            self.handler.username_pw_set(username, password)
+        if self.username and self.password:
+            self.handler.username_pw_set(self.username, self.password)
 
-        self.handler.on_connect = self._on_connect
+        self.handler.on_connect = on_connect
         self.handler.on_disconnect = self._on_disconnect
-        self.subscribe = self.handler.subscribe
-        self.publish = self.handler.publish
-        self.loop_forever = self.handler.loop_forever
 
+        match self.type:
+            case MQTTType.Publish:
+                self.publish = self.handler.publish
+                self.handler.on_publish = on_event
+            case MQTTType.Subscribe:
+                self.subscribe = self.handler.subscribe
+                self.handler.on_message = on_event
+
+    def run(self: Self) -> None:
+        Thread(target=self._run).start()
+
+    def _run(self: Self) -> None:
         try:
-            self.handler.connect(host, port, 60)
-            self.handler.loop_start()
-            logger.success(f"Connected to MQTT at {host}:{port}")
+            self.handler.connect(self.host, self.port, 60)
+            logger.success(f"Connected to MQTT at {self.host}:{self.port}")
+            match self.type:
+                case MQTTType.Publish:
+                    self.handler.loop_start()
+                case MQTTType.Subscribe:
+                    self.handler.loop_forever()
         except Exception as e:
             logger.error(f"Connecting to MQTT {e}")
 
-    def _on_connect(self, client, userdata, flags, rc):
-        if rc == 0:
-            logger.success("MQTT connection successful.")
-        else:
-            logger.error(f"Failed to connect to MQTT broker with result code {rc}")
-
     def _on_disconnect(self, client, userdata, rc):
         logger.info("Disconnected from MQTT")
-
-    def set_subscribe_event(self: Self, callback: callable) -> None:
-        self.handler.on_message = callback
-
-    def set_publish_event(self: Self, callback: callable) -> None:
-        self.handler.on_publish = callback

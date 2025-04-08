@@ -6,7 +6,7 @@ from config import Config
 from log import logger
 
 headers = {
-    "Content-Type": "application/json'"
+    "Content-Type": "application/json"
 }
 
 
@@ -24,8 +24,8 @@ class RESTHTTPClient:
                 case _:
                     logger.error(f"Unsupported REST HTTP method '{method}' for URL: {endpoint}")
                     return
-            url = self.config.get("base_url") + "/" + endpoint
-            resp = r(url, json=data)
+            url = self.config.get("base_url") + endpoint
+            resp = r(url, data=data, headers=headers)
             resp.raise_for_status()  # Raise an exception for bad status codes
             callback(data=resp.json())
         except requests.exceptions.RequestException as e:

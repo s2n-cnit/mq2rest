@@ -1,4 +1,3 @@
-import json
 import time
 from threading import Thread
 from typing import Self
@@ -7,18 +6,21 @@ import paho.mqtt.client as mqtt
 from config import Config
 from data_translator import translate
 from log import logger
-from mqtt_client import MQTTClient
+from mqtt_client import MQTTClient, MQTTType
 from rest_http_client import RESTHTTPClient
 
 
 class Publish:
-    def __init__(self: Self, config: Config, mqtt_client: MQTTClient, rest_http_client: RESTHTTPClient) -> None:
+    def __init__(self: Self, config: Config, rest_http_client: RESTHTTPClient) -> None:
         self.config = config.get("publish", error_msg=True)
-        self.mqtt_client = mqtt_client
-        self.mqtt_client.set_publish_event(self._on_event)
         self.rest_http_client = rest_http_client
+        self.mqtt_client = MQTTClient(config=config, type=MQTTType.Publish,
+                                      on_connect=self._on_connect, on_event=self._on_event)
 
     def run(self: Self) -> None:
+        self.mqtt_client.run()
+
+    def _on_connect(self, client, userdata, flags, rc):
         for record in self.config:
             rest_endpoint = record.get("rest_endpoint")
             rest_method = record.get("rest_method", "GET").upper()
@@ -29,10 +31,10 @@ class Publish:
             logger.info(f"Fetching data from: {rest_endpoint} (Rest_method: {rest_method}), "
                         f"Publishing to: {mqtt_topic} every {polling_interval} seconds.")
 
-            def publish_loop(endpoint, rest_method, mqtt_topic, body, interval, client):
+            def publish_loop(endpoint, rest_method, mqtt_topic, body, interval, mqtt_client):
                 def _callback(data: dict) -> None:
                     out_data = translate(data=data, template=body)
-                    result = client.publish(mqtt_topic, out_data)
+                    result = mqtt_client.publish(mqtt_topic, out_data)
                     if result[0] == mqtt.MQTT_ERR_SUCCESS:
                         logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
                     else:

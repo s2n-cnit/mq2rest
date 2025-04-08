@@ -13,10 +13,10 @@ class EsaoteData(BaseModel):
 
 
 class VoOmaResource(BaseModel):
-    id: str
-    value: float
+    id: float
+    value: str
 
 
 class Response(BaseModel):
     ok: bool
-    data: float
+    data: float | str

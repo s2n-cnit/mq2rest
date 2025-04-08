@@ -2,10 +2,10 @@ mqtt:
   host: localhost
   port: 1883
 rest:
-  base_url: http://127.0.0.1:5555
+  base_url: http://127.0.0.1:5555/api/clients
 publish:
 # Depth
-- rest_endpoint: /1/3319/1/1?getRealtime=true
+- rest_endpoint: /D001/3319/0/5700?getRealtime=true
   rest_method: GET
   mqtt_topic: tele/D001/3319/0
   polling_interval: 10
@@ -14,7 +14,7 @@ publish:
     e:
       - v: $value
 # Gain
-- rest_endpoint: /1/33320/1/1?getRealtime=true
+- rest_endpoint: /D001/33320/0/5700?getRealtime=true
   rest_method: GET
   mqtt_topic: tele/D001/3320/0
   polling_interval: 10
@@ -23,7 +23,7 @@ publish:
     e:
       - v: $value
 # Width
-- rest_endpoint: /1/33321/1/1?getRealtime=true
+- rest_endpoint: /D001/33321/0/5700?getRealtime=true
   rest_method: GET
   mqtt_topic: tele/D001/3321/0
   polling_interval: 10
@@ -32,7 +32,7 @@ publish:
     e:
       - v: $value
 # Scan correlation
-- rest_endpoint: /1/33322/1/1?getRealtime=true
+- rest_endpoint: /D001/33322/0/5700?getRealtime=true
   rest_method: GET
   mqtt_topic: tele/D001/3322/0
   polling_interval: 10
@@ -43,30 +43,29 @@ publish:
 subscribe:
 # Depth
 - mqtt_topic: tele/D001/3319/0
-  rest_endpoint: /1/3319/1/1
+  rest_endpoint: /D001/3319/0/5700
   rest_method: PUT
   body:
-    id: "1"
+    id: 5700
     value: $value
 # Gain
 - mqtt_topic: tele/D001/3320/0
-  rest_endpoint: /1/33320/1/1
+  rest_endpoint: /D001/33320/0/5700
   rest_method: PUT\
   body:
-    id: "1"
+    id: 5700
     value: $value
 # Width
 - mqtt_topic: tele/D001/3321/0
-  rest_endpoint: /1/33321/1/1
+  rest_endpoint: /D001/33321/0/5700
   rest_method: PUT
   body:
-    id: "1"
+    id: 5700
     value: $value
 # Scan correlation
 - mqtt_topic: tele/D001/3322/0
-  rest_endpoint: /1/33322/1/1
+  rest_endpoint: /DD1/33322/0/5700
   rest_method: PUT
   body:
-    id: "1"
+    id: 5700
     value: $value
-
