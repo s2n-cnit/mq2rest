@@ -7,58 +7,133 @@ publish:
 # Depth
 - rest_endpoint: /1/3319/1/1
   rest_method: GET
-  mqtt_topic: 1
+  mqtt_topic: tele/D001/3319/0
   polling_interval: 10
   headers:
     Content-Type: "application/json"
   body:
     in: |
-      hello {{ user }}
+      hello {value}
     out: |
-      my name is {{ user }}
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
 # Gain
 - rest_endpoint: /1/33320/1/1
   rest_method: GET
-  mqtt_topic: 1
+  mqtt_topic: tele/D001/3320/0
   polling_interval: 10
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      hello {value}
+    out: |
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
 # Width
 - rest_endpoint: /1/33321/1/1
   rest_method: GET
-  mqtt_topic: 1
+  mqtt_topic: tele/D001/3321/0
   polling_interval: 10
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      hello {value}
+    out: |
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
 # Scan correlation
 - rest_endpoint: /1/33322/1/1
   rest_method: GET
-  mqtt_topic: 1
+  mqtt_topic: tele22001/3322/0
   polling_interval: 10
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      hello {value}
+    out: |
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
 subscribe:
 # Depth
-- mqtt_topic: 1
+- mqtt_topic: tele/D001/3319/0
   rest_endpoint: /1/3319/1/1
   rest_method: PUT
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
+    out: |
+      hello {value}
 # Gain
-- mqtt_topic: 1
+- mqtt_topic: tele/D001/3320/0
   rest_endpoint: /1/33320/1/1
   rest_method: PUT\
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
+    out: |
+      hello: {value}
 # Width
-- mqtt_topic: 1
+- mqtt_topic: tele/D001/3321/0
   rest_endpoint: /1/33321/1/1
   rest_method: PUT
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
+    out: |
+      hello: {value}
 # Scan correlation
-- mqtt_topic: 1
+- mqtt_topic: tele/D001/3322/0
   rest_endpoint: /1/33322/1/1
   rest_method: PUT
   headers:
     Content-Type: "application/json"
+  body:
+    in: |
+      \{
+        "tmstp": "",
+        "e": [
+          \{"v": {value} \}
+        ]
+      \}
+    out: |
+      hello: {value}
