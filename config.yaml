@@ -7,7 +7,7 @@ publish:
 # Depth
 - rest_endpoint: /D001/3319/0/5700?getRealtime=true
   rest_method: GET
-  mqtt_topic: tele/D001/3319/0
+  mqtt_topic: stat/D001/3319/0
   polling_interval: 10
   body:
     tmstp: ""
@@ -16,7 +16,7 @@ publish:
 # Gain
 - rest_endpoint: /D001/33320/0/5700?getRealtime=true
   rest_method: GET
-  mqtt_topic: tele/D001/3320/0
+  mqtt_topic: stat/D001/3320/0
   polling_interval: 10
   body:
     tmstp: ""
@@ -25,7 +25,7 @@ publish:
 # Width
 - rest_endpoint: /D001/33321/0/5700?getRealtime=true
   rest_method: GET
-  mqtt_topic: tele/D001/3321/0
+  mqtt_topic: stat/D001/3321/0
   polling_interval: 10
   body:
     tmstp: ""
@@ -34,7 +34,7 @@ publish:
 # Scan correlation
 - rest_endpoint: /D001/33322/0/5700?getRealtime=true
   rest_method: GET
-  mqtt_topic: tele/D001/3322/0
+  mqtt_topic: stat/D001/3322/0
   polling_interval: 10
   body:
       tmstp: ""
@@ -42,28 +42,28 @@ publish:
         - v: $value
 subscribe:
 # Depth
-- mqtt_topic: tele/D001/3319/0
+- mqtt_topic: cmnd/D001/3319/0
   rest_endpoint: /D001/3319/0/5700
   rest_method: PUT
   body:
     id: 5700
     value: $value
 # Gain
-- mqtt_topic: tele/D001/3320/0
+- mqtt_topic: cmnd/D001/3320/0
   rest_endpoint: /D001/33320/0/5700
   rest_method: PUT\
   body:
     id: 5700
     value: $value
 # Width
-- mqtt_topic: tele/D001/3321/0
+- mqtt_topic: cmnd/D001/3321/0
   rest_endpoint: /D001/33321/0/5700
   rest_method: PUT
   body:
     id: 5700
     value: $value
 # Scan correlation
-- mqtt_topic: tele/D001/3322/0
+- mqtt_topic: cmnd/D001/3322/0
   rest_endpoint: /DD1/33322/0/5700
   rest_method: PUT
   body:
