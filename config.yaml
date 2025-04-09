@@ -1,8 +1,8 @@
 mqtt:
-  host: localhost
+  host: 172.19.2.7
   port: 1883
 rest:
-  base_url: http://127.0.0.1:5555/api/clients
+  base_url: http://172.19.2.7:5555/api/clients
 publish:
 # Depth
 - rest_endpoint: /D001/3319/0/5700?getRealtime=true
