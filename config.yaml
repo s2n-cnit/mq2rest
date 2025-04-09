@@ -1,8 +1,10 @@
 mqtt:
-  host: 172.19.2.7
-  port: 1883
+  host: "${MQTT_HOST}"
+  port: ${MQTT_PORT}
+  username: "${MQTT_USERNAME}"
+  password: "${MQTT_PASSWORD}"
 rest:
-  base_url: http://172.19.2.7:5555/api/clients
+  base_url: ${VO_URL}/api/clients
 publish:
 # Depth
 - rest_endpoint: /D001/3319/0/5700?getRealtime=true
@@ -12,7 +14,7 @@ publish:
   body:
     tmstp: ""
     e:
-      - v: $value
+      - v: "<placeholder>"
 # Gain
 - rest_endpoint: /D001/33320/0/5700?getRealtime=true
   rest_method: GET
@@ -21,7 +23,7 @@ publish:
   body:
     tmstp: ""
     e:
-      - v: $value
+      - v: "<placeholder>"
 # Width
 - rest_endpoint: /D001/33321/0/5700?getRealtime=true
   rest_method: GET
@@ -30,7 +32,7 @@ publish:
   body:
     tmstp: ""
     e:
-      - v: $value
+      - v: "<placeholder>"
 # Scan correlation
 - rest_endpoint: /D001/33322/0/5700?getRealtime=true
   rest_method: GET
@@ -39,7 +41,7 @@ publish:
   body:
       tmstp: ""
       e:
-        - v: $value
+        - v: "<placeholder>"
 subscribe:
 # Depth
 - mqtt_topic: cmnd/D001/3319/0
@@ -47,25 +49,25 @@ subscribe:
   rest_method: PUT
   body:
     id: 5700
-    value: $value
+    value: "<placeholder>"
 # Gain
 - mqtt_topic: cmnd/D001/3320/0
   rest_endpoint: /D001/33320/0/5700
   rest_method: PUT\
   body:
     id: 5700
-    value: $value
+    value: "<placeholder>"
 # Width
 - mqtt_topic: cmnd/D001/3321/0
   rest_endpoint: /D001/33321/0/5700
   rest_method: PUT
   body:
     id: 5700
-    value: $value
+    value: "<placeholder>"
 # Scan correlation
 - mqtt_topic: cmnd/D001/3322/0
   rest_endpoint: /DD1/33322/0/5700
   rest_method: PUT
   body:
     id: 5700
-    value: $value
+    value: "<placeholder>"

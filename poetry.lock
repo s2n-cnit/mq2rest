@@ -176,6 +176,21 @@ files = [
 ]
 
 [[package]]
+name = "envyaml"
+version = "1.10.211231"
+description = "Simple YAML configuration file parser with easy access for structured data"
+optional = false
+python-versions = ">=2.7"
+groups = ["main"]
+files = [
+    {file = "envyaml-1.10.211231-py2.py3-none-any.whl", hash = "sha256:8d7a7a6be12587cc5da32a587067506b47b849f4643981099ad148015a72de52"},
+    {file = "envyaml-1.10.211231.tar.gz", hash = "sha256:88f8a076159e3c317d3450a5f404132b6ac91aecee4934ea72eac65f911f1244"},
+]
+
+[package.dependencies]
+PyYAML = "*"
+
+[[package]]
 name = "fastapi"
 version = "0.115.12"
 description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
@@ -589,4 +604,4 @@ dev = ["black (>=19.3b0) ; python_version >= \"3.6\"", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13,<4.0"
-content-hash = "bab6003429c003d68d7450f593190502042a667066de71883d4229c4279c12ed"
+content-hash = "3ca1bcfa88afa9ec09634491b3a5044b4289f55b9a3a6f6582e2a18f5bdf54e6"

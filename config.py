@@ -1,6 +1,6 @@
-from typing import Dict, Self
+from typing import Self
 
-import yaml
+from envyaml import EnvYAML
 from log import logger
 
 
@@ -12,14 +12,9 @@ class Config:
     def from_path(self: Self, path: str) -> Self:
         self.path = path
         try:
-            with open(self.path, 'r') as f:
-                self._data = yaml.safe_load(f) or {}  # Handle empty YAML files
-        except FileNotFoundError:
-            logger.error(f"Configuration file '{self.path}' not found.")
-            self._data = {}
-        except yaml.YAMLError as e:
-            logger.error(f"parsing YAML file '{self.path}': {e}")
-            self._data = {}
+            self._data = EnvYAML(path)
+        except ValueError as ve:
+            logger.error(ve)
         return self
 
     def from_data(self: Self, data: dict) -> Self:
