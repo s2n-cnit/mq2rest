@@ -32,9 +32,10 @@ class Subscribe:
             logger.warning(f"Unknown topic: {msg.topic}")
             return
 
-        cmd = self.cmds.get(msg.properties.UserProperties["MessageId"], None)
+        message_id = msg.properties.UserProperties["MessageId"]
+        cmd = self.cmds.get(message_id, None)
         if not cmd:
-            logger.warning(f"Unknown Message ID: {msg.mid}")
+            logger.warning(f"Unknown Message ID: {message_id}")
 
         rest_endpoint = record.get("rest_endpoint").replace("<VO_CMD>", cmd)
         rest_method = record.get("rest_method", "GET").upper()
