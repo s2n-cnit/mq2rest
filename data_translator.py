@@ -15,18 +15,19 @@ def translate(data: Dict | str, template: Dict) -> str:
     if isinstance(data, str):
         data = json.loads(data)
     try:
+        out = template.copy()
         if "value" in template:
             if "Value" in data:
-                template["value"] = template["value"].replace("<VALUE>", str(data["Value"]))
+                out["value"] = template["value"].replace("<VALUE>", str(data["Value"]))
             else:
-                template["value"] = template["value"].replace("<VALUE>", str(data["Status"]))
+                out["value"] = template["value"].replace("<VALUE>", str(data["Status"]))
         elif "Value" in template:
-            template["Value"] = get_float(template["value"].replace("<VALUE>", data["value"]))
+                out["Value"] = get_float(template["Value"].replace("<VALUE>", data["value"]))
         elif "Status" in template:
-            template["Status"] = get_float(template["value"].replace("<VALUE>", data["value"]))
+            out["Status"] = get_float(template["Status"].replace("<VALUE>", data["value"]))
         else:
             logger.warning(f"Unknown payload: {template}")
-        logger.info(f"in: {data} out: {template}")
-        return json.dumps(template)
+        logger.info(f"in: {data} out: {out}")
+        return json.dumps(out)
     except Exception as e:
         logger.error(e)
