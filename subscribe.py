@@ -10,6 +10,7 @@ from rest_http_client import RESTHTTPClient
 class Subscribe:
     def __init__(self: Self, config: Config, rest_http_client: RESTHTTPClient) -> None:
         self.config = config.get("subscribe", error_msg=True)
+        self.cmds = config.get("cmd", error_msg=True)
         self.rest_http_client = rest_http_client
         self.topics = {}
         self.mqtt_client = MQTTClient(config=config, type=MQTTType.Subscribe,
@@ -31,7 +32,11 @@ class Subscribe:
             logger.warning(f"Unknown topic: {msg.topic}")
             return
 
-        rest_endpoint = record.get("rest_endpoint")
+        cmd = self.cmds.get(msg.mid, None)
+        if not cmd:
+            logger.warning(f"Unknown Message ID: {msg.mid}")
+
+        rest_endpoint = record.get("rest_endpoint").replace("<VO_CMD>", cmd)
         rest_method = record.get("rest_method", "GET").upper()
         body = record.get("body")
 

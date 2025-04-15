@@ -26,6 +26,7 @@ class Publish:
             rest_method = record.get("rest_method", "GET").upper()
             mqtt_topic = record.get("mqtt_topic")
             polling_interval = record.get("polling_interval", 60)  # Default to 60 seconds
+            message_id = record.get("message_id")
             body = record.get("body")
 
             logger.info(f"Fetching data from: {rest_endpoint} (Rest_method: {rest_method}), "
@@ -34,7 +35,7 @@ class Publish:
             def publish_loop(endpoint, rest_method, mqtt_topic, body, interval, mqtt_client):
                 def _callback(data: dict) -> None:
                     out_data = translate(data=data, template=body)
-                    result = mqtt_client.publish(mqtt_topic, out_data)
+                    result = mqtt_client.publish(mqtt_topic, out_data, user_property={"MessageId": message_id})
                     if result[0] == mqtt.MQTT_ERR_SUCCESS:
                         logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
                     else:
