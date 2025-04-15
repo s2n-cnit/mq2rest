@@ -2,7 +2,7 @@ import random
 
 import uvicorn
 from fastapi import APIRouter, FastAPI
-from model import Response, VoOmaResource
+from model import EsaotePayload, Response, VoOmaPayload
 
 app = FastAPI()
 router = APIRouter(prefix="/api/clients")
@@ -11,12 +11,12 @@ devId = "D001"
 
 for object_id in [3319, 33320, 33321, 33322]:
     @router.get(f"/{devId}/{object_id}/0/5700")
-    async def read(getRealtime: bool = False) -> VoOmaResource:
-        return VoOmaResource(id=5700, value=str(random.uniform(0, 30)))
+    async def read(getRealtime: bool = False) -> VoOmaPayload:
+        return VoOmaPayload(id=5700, value=str(random.uniform(0, 30)))
 
     @router.put(f"/{devId}/{object_id}/0/5700")
-    async def write(vo_oma_res: VoOmaResource) -> Response:
-        return Response(ok=True, data=vo_oma_res.value)
+    async def write(vo_oma_payload: VoOmaPayload) -> Response:
+        return Response(ok=True, data=vo_oma_payload.value)
 
 app.include_router(router)
 
