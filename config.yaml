@@ -10,63 +10,37 @@ publish:
 - rest_endpoint: /D001/3319/0/5700?getRealtime=true
   rest_method: GET
   mqtt_topic: stat/D001/3319/0
+  mid: DepthState
   polling_interval: 10
   body:
-    tmstp: ""
-    e:
-      - v: "<placeholder>"
+    value: "<placeholder>"
 # Gain
 - rest_endpoint: /D001/33320/0/5700?getRealtime=true
   rest_method: GET
-  mqtt_topic: stat/D001/3320/0
+  mqtt_topic: "${ID_DEVICE}/REMOTECLIENT_ROUTING_KEY"
+  mid: GainState
   polling_interval: 10
   body:
-    tmstp: ""
-    e:
-      - v: "<placeholder>"
+    value: "<placeholder>"
 # Width
 - rest_endpoint: /D001/33321/0/5700?getRealtime=true
   rest_method: GET
-  mqtt_topic: stat/D001/3321/0
+  mqtt_topic: "${ID_DEVICE}/REMOTECLIENT_ROUTING_KEY"
+  mid: WidthState
   polling_interval: 10
   body:
-    tmstp: ""
-    e:
-      - v: "<placeholder>"
+    value: "<placeholder>"
 # Scan correlation
 - rest_endpoint: /D001/33322/0/5700?getRealtime=true
   rest_method: GET
-  mqtt_topic: stat/D001/3322/0
+  mqtt_topic: "${ID_DEVICE}/REMOTECLIENT_ROUTING_KEY"
+  mid: ScanCorrelationState
   polling_interval: 10
   body:
-      tmstp: ""
-      e:
-        - v: "<placeholder>"
+    value: "<placeholder>"
 subscribe:
-# Depth
-- mqtt_topic: cmnd/D001/3319/0
-  rest_endpoint: /D001/3319/0/5700
-  rest_method: PUT
-  body:
-    id: 5700
-    value: "<placeholder>"
-# Gain
-- mqtt_topic: cmnd/D001/3320/0
-  rest_endpoint: /D001/33320/0/5700
-  rest_method: PUT\
-  body:
-    id: 5700
-    value: "<placeholder>"
-# Width
-- mqtt_topic: cmnd/D001/3321/0
-  rest_endpoint: /D001/33321/0/5700
-  rest_method: PUT
-  body:
-    id: 5700
-    value: "<placeholder>"
-# Scan correlation
-- mqtt_topic: cmnd/D001/3322/0
-  rest_endpoint: /DD1/33322/0/5700
+- mqtt_topic: "${ID_DEVICE}/REMOTECLIENT_ROUTING_KEY"
+  rest_endpoint: /DD1/${VO_CMD}/0/5700
   rest_method: PUT
   body:
     id: 5700
