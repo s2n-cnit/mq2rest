@@ -37,7 +37,7 @@ publish:
   message_id: ScanCorrelationState
   polling_interval: 10
   body:
-    Value: "<VALUE>"
+    Status: "<VALUE>"
 cmd:
   DepthCommand: 3319
   GainCommand: 33320
