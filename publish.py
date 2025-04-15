@@ -7,6 +7,8 @@ from config import Config
 from data_translator import translate
 from log import logger
 from mqtt_client import MQTTClient, MQTTType
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.properties import Properties
 from rest_http_client import RESTHTTPClient
 
 
@@ -35,7 +37,9 @@ class Publish:
             def publish_loop(endpoint, rest_method, mqtt_topic, body, interval, mqtt_client):
                 def _callback(data: dict) -> None:
                     out_data = translate(data=data, template=body)
-                    result = mqtt_client.publish(mqtt_topic, out_data, user_property={"MessageId": message_id})
+                    properties = Properties(PacketTypes.PUBLISH)
+                    properties.UserProperty = {"MessageId": message_id}
+                    result = mqtt_client.publish(mqtt_topic, out_data, properties=properties)
                     if result[0] == mqtt.MQTT_ERR_SUCCESS:
                         logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
                     else:

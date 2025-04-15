@@ -32,7 +32,7 @@ class Subscribe:
             logger.warning(f"Unknown topic: {msg.topic}")
             return
 
-        cmd = self.cmds.get(msg.mid, None)
+        cmd = self.cmds.get(msg.properties.UserProperties["MessageId"], None)
         if not cmd:
             logger.warning(f"Unknown Message ID: {msg.mid}")
 
