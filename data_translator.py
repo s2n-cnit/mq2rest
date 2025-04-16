@@ -31,6 +31,6 @@ def translate(data: Dict | str, template: Dict) -> str:
         logger.info(f"Translated {data} to {out}")
         return json.dumps(out)
     except KeyError as ke:
-        logger.error("Translate {data} to {out} using {template} [{ke}]")
+        logger.error(f"Translate {data} to {out} using {template} [{ke}]")
     except Exception as e:
         logger.error(e)
