@@ -4,6 +4,8 @@ from config import Config
 from data_translator import translate
 from log import logger
 from mqtt_client import MQTTClient, MQTTType
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.properties import Properties
 from rest_http_client import RESTHTTPClient
 
 
@@ -15,11 +17,12 @@ class Subscribe:
         self.topics = {}
         self.mqtt_client = MQTTClient(config=config, type=MQTTType.Subscribe,
                                       on_connect=self._on_connect, on_event=self._on_event)
+        self.mqtt_properties = Properties(PacketTypes.SUBSCRIBE)
 
     def run(self: Self) -> None:
         self.mqtt_client.run()
 
-    def _on_connect(self, client, userdata, flags, rc):
+    def _on_connect(self, client, userdata, flags, rc, properties):
         for record in self.config:
             mqtt_topic = record.get("mqtt_topic")
             self.mqtt_client.subscribe(mqtt_topic)
@@ -32,12 +35,15 @@ class Subscribe:
             logger.warning(f"Unknown topic: {msg.topic}")
             return
 
-        message_id = msg.properties.UserProperties["MessageId"]
+        for item in msg.properties.UserProperty:
+            if item[0] == "MessageId":
+                message_id = item[1]
+                break
         cmd = self.cmds.get(message_id, None)
         if not cmd:
             logger.warning(f"Unknown Message ID: {message_id}")
 
-        rest_endpoint = record.get("rest_endpoint").replace("<VO_CMD>", cmd)
+        rest_endpoint = record.get("rest_endpoint").replace("<VO_CMD>", str(cmd))
         rest_method = record.get("rest_method", "GET").upper()
         body = record.get("body")
 

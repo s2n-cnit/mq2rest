@@ -2,7 +2,7 @@ import random
 
 import uvicorn
 from fastapi import APIRouter, FastAPI
-from model import EsaotePayload, Response, VoOmaPayload
+from model import Response, VoOmaPayload
 
 app = FastAPI()
 router = APIRouter(prefix="/api/clients")

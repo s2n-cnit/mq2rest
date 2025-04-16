@@ -22,7 +22,7 @@ class Publish:
     def run(self: Self) -> None:
         self.mqtt_client.run()
 
-    def _on_connect(self, client, userdata, flags, rc):
+    def _on_connect(self, client, userdata, flags, rc, properties):
         for record in self.config:
             rest_endpoint = record.get("rest_endpoint")
             rest_method = record.get("rest_method", "GET").upper()
@@ -34,12 +34,11 @@ class Publish:
             logger.info(f"Fetching data from: {rest_endpoint} (Rest_method: {rest_method}), "
                         f"Publishing to: {mqtt_topic} every {polling_interval} seconds.")
 
-            def publish_loop(endpoint, rest_method, mqtt_topic, body, interval, mqtt_client):
+            def publish_loop(endpoint: str, rest_method: str, mqtt_topic: str, body: dict,
+                             interval: int, mqtt_client: MQTTClient, properties: Properties):
                 def _callback(data: dict) -> None:
                     out_data = translate(data=data, template=body)
-                    properties = Properties(PacketTypes.PUBLISH)
-                    properties.UserProperty = {"MessageId": message_id}
-                    result = mqtt_client.publish(mqtt_topic, out_data, properties=properties)
+                    result = mqtt_client.publish(mqtt_topic, out_data, 1, properties=properties)
                     if result[0] == mqtt.MQTT_ERR_SUCCESS:
                         logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
                     else:
@@ -49,8 +48,11 @@ class Publish:
                     self.rest_http_client.run(endpoint=endpoint, method=rest_method, data={}, callback=_callback)
                     time.sleep(interval)
 
+            properties = Properties(PacketTypes.PUBLISH)
+            properties.UserProperty = ("MessageId", message_id)
             thread = Thread(target=publish_loop,
-                            args=(rest_endpoint, rest_method, mqtt_topic, body, polling_interval, self.mqtt_client),
+                            args=(rest_endpoint, rest_method, mqtt_topic, body, polling_interval,
+                                  self.mqtt_client, properties),
                             daemon=True)
             thread.start()
         while True:

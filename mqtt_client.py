@@ -5,6 +5,8 @@ from typing import Self
 import paho.mqtt.client as mqtt
 from config import Config
 from log import logger
+from paho.mqtt.packettypes import PacketTypes
+from paho.mqtt.properties import Properties
 
 
 class MQTTType(Enum):
@@ -22,7 +24,9 @@ class MQTTClient:
         self.username = self.config.get("username")
         self.password = self.config.get("password")
 
-        self.handler = mqtt.Client()
+        self.properties = Properties(PacketTypes.CONNECT)
+        self.properties.MaximumPacketSize = 20
+        self.handler = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, "m2rest-mqtt5_client", protocol=mqtt.MQTTv5)
         if self.username and self.password:
             self.handler.username_pw_set(self.username, self.password)
 
@@ -52,5 +56,5 @@ class MQTTClient:
         except Exception as e:
             logger.error(f"Connecting to MQTT {e}")
 
-    def _on_disconnect(self, client, userdata, rc):
+    def _on_disconnect(self, client, userdata, rc, properties, c):
         logger.info("Disconnected from MQTT")
