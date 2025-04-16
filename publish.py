@@ -40,6 +40,7 @@ class Publish:
                     out_data = translate(data=data, template=body)
                     logger.info(f"Publish to {mqtt_topic} : {out_data} {properties}")
                     result = mqtt_client.publish(mqtt_topic, out_data, 1, properties=properties)
+                    logger.info(f"Result: {result}")
                     if result[0] == mqtt.MQTT_ERR_SUCCESS:
                         logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
                     else:
