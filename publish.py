@@ -42,9 +42,9 @@ class Publish:
                     result = mqtt_client.publish(mqtt_topic, out_data, 1, properties=properties)
                     logger.info(f"Result: {result}")
                     if result[0] == mqtt.MQTT_ERR_SUCCESS:
-                        logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")
+                        logger.info(f"Published to {mqtt_topic}: {out_data[:50]}...")
                     else:
-                        logger.error(f"Publishing to '{mqtt_topic}': {result}")
+                        logger.error(f"Publishing to {mqtt_topic}: {result}")
 
                 while True:
                     self.rest_http_client.run(endpoint=endpoint, method=rest_method, data={}, callback=_callback)
