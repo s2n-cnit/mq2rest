@@ -30,6 +30,7 @@ class Subscribe:
             logger.info(f"Subscribe to: {mqtt_topic}")
 
     def _on_event(self, client, userdata, msg):
+        logger.info(f"Received message from {msg.topic}: {msg.payload}")
         record = self.topics.get(msg.topic, None)
         if not record:
             logger.warning(f"Unknown topic: {msg.topic}")

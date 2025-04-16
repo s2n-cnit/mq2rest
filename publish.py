@@ -38,6 +38,7 @@ class Publish:
                              interval: int, mqtt_client: MQTTClient, properties: Properties):
                 def _callback(data: dict) -> None:
                     out_data = translate(data=data, template=body)
+                    logger.info(f"Publish to {mqtt_topic} : {out_data} {properties}")
                     result = mqtt_client.publish(mqtt_topic, out_data, 1, properties=properties)
                     if result[0] == mqtt.MQTT_ERR_SUCCESS:
                         logger.info(f"Published to '{mqtt_topic}': {out_data[:50]}...")

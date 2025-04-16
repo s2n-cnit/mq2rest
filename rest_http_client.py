@@ -25,8 +25,10 @@ class RESTHTTPClient:
                     logger.error(f"Unsupported REST HTTP method '{method}' for URL: {endpoint}")
                     return
             url = self.config.get("base_url") + endpoint
+            logger.info(f"HTTP {method.upper()} Request to {url}: {data}")
             resp = r(url, data=data, headers=headers)
             resp.raise_for_status()  # Raise an exception for bad status codes
+            logger.info(f"HTTP {method.upper()} Response from {url}: {resp.content}")
             callback(data=resp.json())
         except requests.exceptions.RequestException as e:
             logger.error(f"REST HTTP request to '{url}' failed: {e}")
