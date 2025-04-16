@@ -39,7 +39,7 @@ publish:
   body:
     Status: "<VALUE>"
 cmd:
-  DepthCommand: 3319
+  DepthCommand: 3316
   GainCommand: 33320
   WidthCommand: 33321
   ScanCommand: 33322
