@@ -15,6 +15,8 @@ def translate(data: Dict | str, template: Dict) -> str:
     if isinstance(data, str):
         data = json.loads(data)
     try:
+        if "content" in data:
+            data = data["content"]
         logger.info(f"Translating from {template} using {data}")
         out = template.copy()
         if "value" in template:
