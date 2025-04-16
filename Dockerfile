@@ -5,7 +5,9 @@ RUN pip install poetry
 RUN mkdir ./mq2rest
 WORKDIR /mq2rest
 
-COPY ./* ./
+COPY ./ ./
+
+RUN rm -rf test
 
 RUN poetry install --no-root
 

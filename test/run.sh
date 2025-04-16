@@ -1,0 +1,3 @@
+#!/bin/bash
+
+MQTT_PORT=1883 MQTT_HOST=172.19.2.7 VO_URL=http://172.19.2.7:5555 MQTT_USERNAME=x MQTT_PASSWORD=x ID_DEVICE=D0001 poetry run python main.py
